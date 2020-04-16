@@ -6,21 +6,26 @@
 #define NITER 1000000
 
 int cnt = 0;
+sem_t sem_name;
+sem_t mutex;
 
 void * Count(void * a)
 {
     int i, tmp;
     for(i = 0; i < NITER; i++)
     {
+	sem_wait(&mutex);    
         tmp = cnt;      /* copy the global cnt locally */
         tmp = tmp + 1;    /* increment the local copy */
         cnt = tmp;      /* store the local value into the global cnt */ 
+   	sem_post(&mutex);
     }
 }
 
 int main(int argc, char * argv[])
 {
     pthread_t tid1, tid2;
+    sem_init(&mutex, 0, 1);
 
     if(pthread_create(&tid1, NULL, Count, NULL))
     {
